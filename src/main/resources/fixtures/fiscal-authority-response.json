@@ -1,0 +1,8 @@
+{
+  "submissionStatus": "ACCEPTED",
+  "authorityResponseCode": "FIXTURE_ACCEPTED",
+  "authorityResponseMessage": "Simulated fiscal receipt accepted. This fixture is not a tax-authority acknowledgement.",
+  "authorityTransactionIdPrefix": "TEST-TAX",
+  "fiscalReferencePrefix": "TEST-FISCAL",
+  "fiscalSignaturePrefix": "TEST-SIGNATURE"
+}

@@ -1,0 +1,1234 @@
+{
+  "info": {
+    "_postman_id": "2ce37f2e-5513-4d80-b9f8-b693d40486bd",
+    "name": "Pay Tax VAT System APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12579399"
+  },
+  "item": [
+    {
+      "name": "Transaction Operations",
+      "item": [
+        {
+          "name": "Purchase Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{$randomUUID}}\",\n  \"cashRegisterId\": \"reg-001\",\n  \"cashierId\": \"cashier-001\",\n  \"lineItems\": [\n    {\n      \"itemCode\": \"SKU-001\",\n      \"itemName\": \"Test Product\",\n      \"unitPrice\": 12052,\n      \"quantity\": 2,\n      \"discountAmount\": 0,\n      \"vatExempt\": false,\n      \"vatCategory\": \"REDUCED\"\n    }\n  ],\n  \"paymentTenders\": [\n    {\n      \"paymentMethod\": \"CASH\",\n      \"paymentProvider\": \"CASH\",\n      \"amountTendered\": 24104\n    }\n  ],\n  \"customerName\": \"john doe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Base_Url}}{{Transaction_url}}/purchase",
+              "host": [
+                "{{Base_Url}}{{Transaction_url}}"
+              ],
+              "path": [
+                "purchase"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pre-Authorization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{$randomUUID}}\",\n  \"cashRegisterId\": \"reg-001\",\n  \"cashierId\": \"cashier-001\",\n  \"preauthHoldAmount\": 1000,\n  \"paymentTenders\": [\n    {\n      \"paymentMethod\": \"CARD\",\n      \"paymentProvider\": \"CBE\",\n      \"amountTendered\": 1000\n    }\n  ],\n  \"customerName\": \"Abebe Bikila\",\n  \"expiresInHours\": 72\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Base_Url}}{{Transaction_url}}/preauth",
+              "host": [
+                "{{Base_Url}}{{Transaction_url}}"
+              ],
+              "path": [
+                "preauth"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Capture Pre-Auth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"captureAmount\": 8000\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Base_Url}}{{Transaction_url}}/:transactionId/capture",
+              "host": [
+                "{{Base_Url}}{{Transaction_url}}"
+              ],
+              "path": [
+                ":transactionId",
+                "capture"
+              ],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": "TXN-20261001-134346-17d865fb"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refund Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{$randomUUID}}\",\n  \"refundAmount\": 5000,\n  \"reason\": \"Customer return\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Base_Url}}{{Transaction_url}}/:transactionId/refund",
+              "host": [
+                "{{Base_Url}}{{Transaction_url}}"
+              ],
+              "path": [
+                ":transactionId",
+                "refund"
+              ],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": "TXN-20260929-161057-15d693d3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reverse Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{$randomUUID}}\",\n  \"reason\": \"Clerk error\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Base_Url}}{{Transaction_url}}/:transactionId/reverse",
+              "host": [
+                "{{Base_Url}}{{Transaction_url}}"
+              ],
+              "path": [
+                ":transactionId",
+                "reverse"
+              ],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": "TXN-20261001-134603-234c7dad"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Transaction_url}}/:transactionId",
+              "host": [
+                "{{Base_Url}}{{Transaction_url}}"
+              ],
+              "path": [
+                ":transactionId"
+              ],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": "TXN-20261001-134603-234c7dad"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reporting Endpoints",
+      "item": [
+        {
+          "name": "Revenue by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/revenue?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "revenue"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VAT by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/vat?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "vat"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Service Fees by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/service-fees?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "service-fees"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Total Refunds by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/refunds?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "refunds"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cashier Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/cashier-performance?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "cashier-performance"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Reconciliation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/register-reconciliation/:cashRegisterId?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "register-reconciliation",
+                ":cashRegisterId"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "cashRegisterId",
+                  "value": "reg-001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Failed Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/failed-transactions?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "failed-transactions"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unsettled Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/unsettled-transactions?cutoffDate=2026-10-01T00:00:00",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "unsettled-transactions"
+              ],
+              "query": [
+                {
+                  "key": "cutoffDate",
+                  "value": "2026-10-01T00:00:00"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "High-Value Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/high-value-transactions?threshold=100000",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "high-value-transactions"
+              ],
+              "query": [
+                {
+                  "key": "threshold",
+                  "value": "100000"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Payment Method Breakdown",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/payment-method-breakdown?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "payment-method-breakdown"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/daily-summary?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "daily-summary"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Monthly Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/monthly-summary?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "monthly-summary"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transaction Count by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/transaction-count-by-status?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "transaction-count-by-status"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hourly Transaction Volume",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/hourly-volume?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "hourly-volume"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Average Transaction Value",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/average-transaction-value?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "average-transaction-value"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Gross vs Net Analysis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/gross-vs-net?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "gross-vs-net"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refund Rate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/refund-rate?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "refund-rate"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Top Cashiers by Revenue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/top-cashiers?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "top-cashiers"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Top Registers by Revenue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Reports_url}}/top-registers?dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59",
+              "host": [
+                "{{Base_Url}}{{Reports_url}}"
+              ],
+              "path": [
+                "top-registers"
+              ],
+              "query": [
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search Endpoints",
+      "item": [
+        {
+          "name": "Search Transactions (Advanced)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/transactions?status=COMPLETED&transactionType=PURCHASE&cashRegisterId=reg-001&cashierId=cashier-001&dateFrom=2026-01-01T00:00:00&dateTo=2026-12-31T23:59:59&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "COMPLETED"
+                },
+                {
+                  "key": "transactionType",
+                  "value": "PURCHASE"
+                },
+                {
+                  "key": "cashRegisterId",
+                  "value": "reg-001"
+                },
+                {
+                  "key": "cashierId",
+                  "value": "cashier-001"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2026-01-01T00:00:00"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2026-12-31T23:59:59"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Full-Text Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/fulltext?query=John&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "fulltext"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "John"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find All Refunds for Transaction",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/refunds/:parentTransactionId",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "refunds",
+                ":parentTransactionId"
+              ],
+              "variable": [
+                {
+                  "key": "parentTransactionId",
+                  "value": "TXN-20260929-161057-15d693d3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find All Reversals for Transaction",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/reversals/:parentTransactionId",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "reversals",
+                ":parentTransactionId"
+              ],
+              "variable": [
+                {
+                  "key": "parentTransactionId",
+                  "value": "TXN-20260929-161057-15d693d3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find All Child Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/children/:parentTransactionId",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "children",
+                ":parentTransactionId"
+              ],
+              "variable": [
+                {
+                  "key": "parentTransactionId",
+                  "value": "TXN-20260929-161057-15d693d3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Customer Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/customer-name?name=John&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "customer-name"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "John"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Customer TIN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/customer-tin?tin=123456789&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "customer-tin"
+              ],
+              "query": [
+                {
+                  "key": "tin",
+                  "value": "123456789"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Amount Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/amount-range?minAmount=10000&maxAmount=100000&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "amount-range"
+              ],
+              "query": [
+                {
+                  "key": "minAmount",
+                  "value": "10000"
+                },
+                {
+                  "key": "maxAmount",
+                  "value": "100000"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Card Last Four",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/card-last-four?cardLastFour=1234&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "card-last-four"
+              ],
+              "query": [
+                {
+                  "key": "cardLastFour",
+                  "value": "1234"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Payment Method",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/payment-method?paymentMethod=CARD&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "payment-method"
+              ],
+              "query": [
+                {
+                  "key": "paymentMethod",
+                  "value": "CARD"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by VAT Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/vat-category?vatCategory=STANDARD&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "vat-category"
+              ],
+              "query": [
+                {
+                  "key": "vatCategory",
+                  "value": "STANDARD"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Item Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/item-code?itemCode=SKU-001&page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "item-code"
+              ],
+              "query": [
+                {
+                  "key": "itemCode",
+                  "value": "SKU-001"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recent Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/recent?page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recent Transactions by Cashier",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{Base_Url}}{{Search_url}}/recent-cashier/:cashierId?page=0&size=20",
+              "host": [
+                "{{Base_Url}}{{Search_url}}"
+              ],
+              "path": [
+                "recent-cashier",
+                ":cashierId"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "cashierId",
+                  "value": "cashier-001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recent Transactions by Register",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/pos/search/recent-register/:cashRegisterId?page=0&size=20",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "pos",
+                "search",
+                "recent-register",
+                ":cashRegisterId"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "cashRegisterId",
+                  "value": "reg-001"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "Base_Url",
+      "value": ""
+    },
+    {
+      "key": "Search_url",
+      "value": ""
+    },
+    {
+      "key": "Reports_url",
+      "value": ""
+    },
+    {
+      "key": "Transaction_url",
+      "value": ""
+    },
+    {
+      "key": "TransactionI_d",
+      "value": ""
+    }
+  ]
+}

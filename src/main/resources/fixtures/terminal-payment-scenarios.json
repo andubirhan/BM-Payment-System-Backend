@@ -1,0 +1,32 @@
+[
+  {
+    "id": "APPROVED",
+    "label": "Card approved",
+    "description": "Simulate a successful card authorization and settlement.",
+    "message": "Card authorized successfully.",
+    "outcome": "APPROVED",
+    "delayMillis": 900,
+    "cardBrand": "VISA",
+    "cardLastFour": "4242"
+  },
+  {
+    "id": "DECLINED",
+    "label": "Card declined",
+    "description": "Simulate a card issuer decline.",
+    "message": "The card issuer declined this payment.",
+    "outcome": "DECLINED",
+    "delayMillis": 700,
+    "cardBrand": "MASTERCARD",
+    "cardLastFour": "0002"
+  },
+  {
+    "id": "PENDING",
+    "label": "No response (leave pending)",
+    "description": "Simulate a terminal timeout; the transaction remains pending for status checking.",
+    "message": "No final terminal response was received. Check payment status before retrying.",
+    "outcome": "PENDING",
+    "delayMillis": 1800,
+    "cardBrand": "VISA",
+    "cardLastFour": "9995"
+  }
+]
