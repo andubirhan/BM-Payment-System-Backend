@@ -33,10 +33,10 @@ buildNumber.properties
 *.swo
 *~
 
-# Environment variables
+# Local environment files and secrets
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # OS
 .DS_Store
