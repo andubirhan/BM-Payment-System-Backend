@@ -6,11 +6,12 @@
     "variable": [
         {
             "key": "Base_Url",
-            "value": "http://localhost:8080",
+            "value": "http://localhost:8082",
             "type": "string"
         },
         {
             "key": "Jwt_token",
+
             "value": "",
             "type": "string"
         }
@@ -21,6 +22,19 @@
             "item": [
                 {
                     "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.collectionVariables.set(\"Jwt_token\", jsonData.token);",
+                                    "console.log(\"Token set: \" + jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [
@@ -78,7 +92,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"befaPaymentId\":\"{{befaPaymentId}}\",\"bankTransactionId\":\"BANK-REF-999\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"lineItems\":[{\"itemCode\":\"PROD-001\",\"itemName\":\"Product A\",\"unitPrice\":37500,\"quantity\":2,\"discountAmount\":0,\"vatExempt\":false,\"vatCategory\":\"STANDARD\"}],\"paymentTenders\":[{\"paymentMethod\":\"VOUCHER\",\"paymentProvider\":\"VOUCHER\",\"amountTendered\":75000,\"amountApplied\":75000}],\"customerName\":\"Enterprise Retail Partners\",\"customerTin\":\"TIN-88291-X\",\"pricesIncludeVat\":true}"
+                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"befaPaymentId\":\"BEFA-12345\",\"bankTransactionId\":\"BANK-REF-999\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"lineItems\":[{\"itemCode\":\"PROD-001\",\"itemName\":\"Product A\",\"unitPrice\":37500,\"quantity\":2,\"discountAmount\":0,\"vatExempt\":false,\"vatCategory\":\"STANDARD\"}],\"paymentTenders\":[{\"paymentMethod\":\"VOUCHER\",\"paymentProvider\":\"VOUCHER\",\"amountTendered\":75000,\"amountApplied\":75000}],\"customerName\":\"Enterprise Retail Partners\",\"customerTin\":\"TIN-88291-X\",\"pricesIncludeVat\":true,\"applyCustomerFee\":false,\"applyWithholdingVat\":false,\"currencyCode\":\"ETB\"}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/transactions/purchase",
@@ -103,7 +117,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"befaPaymentId\":\"{{befaPaymentId}}\",\"bankTransactionId\":\"BANK-REF-999\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"preauthHoldAmount\":1000,\"paymentTenders\":[{\"paymentMethod\":\"CARD\",\"paymentProvider\":\"CBE\",\"amountTendered\":1000}],\"customerName\":\"Abebe Bikila\",\"expiresInHours\":72,\"businessTransactionType\":\"PURCHASE\"}"
+                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"befaPaymentId\":\"BEFA-12345\",\"bankTransactionId\":\"BANK-REF-999\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"preauthHoldAmount\":1000,\"paymentTenders\":[{\"paymentMethod\":\"CARD\",\"paymentProvider\":\"CBE\",\"amountTendered\":1000}],\"customerName\":\"Abebe Bikila\",\"expiresInHours\":72,\"businessTransactionType\":\"PURCHASE\",\"autoCaptureAmount\":0,\"pricesIncludeVat\":false,\"applyCustomerFee\":false,\"applyWithholdingVat\":false,\"currencyCode\":\"ETB\"}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/transactions/preauth",
@@ -128,7 +142,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"captureAmount\":300}"
+                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"captureAmount\":300.00}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/transactions/:transactionId/capture",
@@ -159,7 +173,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"refundAmount\":52000,\"reason\":\"Customer return\"}"
+                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"refundAmount\":52000.00,\"lineItemIds\":[],\"reason\":\"Customer return\"}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/transactions/:transactionId/refund",
@@ -341,6 +355,60 @@
                             "host": ["{{Base_Url}}"],
                             "path": ["api", "v1", "pos", "search", "transactions"],
                             "query": [
+                                {
+                                    "key": "status",
+                                    "value": "",
+                                    "description": "COMPLETED, PENDING, FAILED, etc.",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "transactionType",
+                                    "value": "",
+                                    "description": "SALE, PURCHASE, REFUND, REVERSAL, PRE_AUTH",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "cashRegisterId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "cashierId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "customerName",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "befaPaymentId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "bankTransactionId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "customerTin",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "dateFrom",
+                                    "value": "",
+                                    "description": "ISO datetime format",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "dateTo",
+                                    "value": "",
+                                    "description": "ISO datetime format",
+                                    "disabled": true
+                                },
                                 {
                                     "key": "page",
                                     "value": "0"
@@ -1353,6 +1421,42 @@
                             "path": ["api", "v1", "pos", "reports", "fiscal-submissions"],
                             "query": [
                                 {
+                                    "key": "dateFrom",
+                                    "value": "",
+                                    "description": "ISO datetime format",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "dateTo",
+                                    "value": "",
+                                    "description": "ISO datetime format",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "",
+                                    "description": "SUBMITTED, FAILED, PENDING",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "mode",
+                                    "value": "",
+                                    "description": "REAL_TIME, BATCH",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "creditNote",
+                                    "value": "",
+                                    "description": "true/false",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "query",
+                                    "value": "",
+                                    "description": "Full-text search",
+                                    "disabled": true
+                                },
+                                {
                                     "key": "page",
                                     "value": "0"
                                 },
@@ -1408,7 +1512,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"befaPaymentId\":\"BEFA-12345\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"amount\":75000,\"currencyCode\":\"ETB\"}"
+                            "raw": "{\"befaPaymentId\":\"BEFA-12345\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"transactionType\":\"PURCHASE\",\"terminalScenarioId\":\"\",\"pricesIncludeVat\":false,\"applyCustomerFee\":false,\"applyWithholdingVat\":false,\"currencyCode\":\"ETB\"}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/bank-payments/preview",
@@ -1433,7 +1537,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"befaPaymentId\":\"BEFA-12345\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"amount\":75000,\"currencyCode\":\"ETB\"}"
+                            "raw": "{\"befaPaymentId\":\"BEFA-12345\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"transactionType\":\"PURCHASE\",\"terminalScenarioId\":\"\",\"pricesIncludeVat\":false,\"applyCustomerFee\":false,\"applyWithholdingVat\":false,\"currencyCode\":\"ETB\"}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/bank-payments/execute",
@@ -1591,7 +1695,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\"vatRate\":0.15,\"serviceFeeRate\":0.02,\"saleWithholdingVatRate\":0.02,\"purchaseWithholdingVatRate\":0.02}"
+                            "raw": "{\"serviceFeeRate\":0.02,\"saleWithholdingVatRate\":0.02,\"purchaseWithholdingVatRate\":0.02,\"vatRates\":[{\"categoryCode\":\"STANDARD\",\"categoryName\":\"Standard Rate\",\"rate\":0.15,\"active\":true},{\"categoryCode\":\"EXEMPT\",\"categoryName\":\"Exempt\",\"rate\":0.0,\"active\":true},{\"categoryCode\":\"ZERO_RATED\",\"categoryName\":\"Zero Rated\",\"rate\":0.0,\"active\":true}]}"
                         },
                         "url": {
                             "raw": "{{Base_Url}}/api/v1/pos/settings/pricing",
@@ -1720,6 +1824,65 @@
                             "raw": "{{Base_Url}}/api/v1/pos/bank-payments/terminal-scenarios",
                             "host": ["{{Base_Url}}"],
                             "path": ["api", "v1", "pos", "bank-payments", "terminal-scenarios"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Test Transaction Data (Fixture Profile)",
+            "item": [
+                {
+                    "name": "Load Test Transaction Data",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{Jwt_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{Base_Url}}/api/v1/test-transaction-data/:transactionType",
+                            "host": ["{{Base_Url}}"],
+                            "path": ["api", "v1", "test-transaction-data", ":transactionType"],
+                            "variable": [
+                                {
+                                    "key": "transactionType",
+                                    "value": "purchase"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Save Test Transaction Data",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{Jwt_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"idempotencyKey\":\"{{$randomUUID}}\",\"befaPaymentId\":\"BEFA-12345\",\"bankTransactionId\":\"BANK-REF-999\",\"cashRegisterId\":\"REG-001\",\"cashierId\":\"CASHIER-001\",\"lineItems\":[{\"itemCode\":\"PROD-001\",\"itemName\":\"Product A\",\"unitPrice\":37500,\"quantity\":2,\"discountAmount\":0,\"vatExempt\":false,\"vatCategory\":\"STANDARD\"}],\"paymentTenders\":[{\"paymentMethod\":\"VOUCHER\",\"paymentProvider\":\"VOUCHER\",\"amountTendered\":75000,\"amountApplied\":75000}],\"customerName\":\"Enterprise Retail Partners\",\"customerTin\":\"TIN-88291-X\",\"pricesIncludeVat\":true}"
+                        },
+                        "url": {
+                            "raw": "{{Base_Url}}/api/v1/test-transaction-data/:transactionType",
+                            "host": ["{{Base_Url}}"],
+                            "path": ["api", "v1", "test-transaction-data", ":transactionType"],
+                            "variable": [
+                                {
+                                    "key": "transactionType",
+                                    "value": "purchase"
+                                }
+                            ]
                         }
                     }
                 }
