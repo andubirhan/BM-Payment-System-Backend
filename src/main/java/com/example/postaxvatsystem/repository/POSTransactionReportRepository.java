@@ -29,7 +29,7 @@ public interface POSTransactionReportRepository extends JpaRepository<POSTransac
             WHERE t.createdAt BETWEEN :dateFrom AND :dateTo
               AND (t.status = 'COMPLETED' OR (t.transactionType = 'REFUND' AND t.status = 'REFUNDED'))
             """)
-    Object[] calculateRevenueTotalsByDateRange(
+    List<Object[]> calculateRevenueTotalsByDateRange(
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo);
 

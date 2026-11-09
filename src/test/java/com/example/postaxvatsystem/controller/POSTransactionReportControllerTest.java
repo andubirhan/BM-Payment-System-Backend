@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,13 +20,13 @@ class POSTransactionReportControllerTest {
         POSTransactionReportRepository repository = mock(POSTransactionReportRepository.class);
         LocalDateTime from = LocalDateTime.of(2026, 11, 1, 0, 0);
         LocalDateTime to = LocalDateTime.of(2026, 11, 3, 23, 59, 59);
-        when(repository.calculateRevenueTotalsByDateRange(from, to)).thenReturn(new Object[]{
+        when(repository.calculateRevenueTotalsByDateRange(from, to)).thenReturn((List<Object[]>) List.of(new Object[]{
                 new BigDecimal("900.50"),
                 new BigDecimal("90.05"),
                 new BigDecimal("18.01"),
                 new BigDecimal("100.25"),
                 new BigDecimal("990.55"),
-        });
+        }));
 
         ResponseEntity<Map<String, Object>> response = new POSTransactionReportController(repository)
                 .getRevenueReport(from, to);

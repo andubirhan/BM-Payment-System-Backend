@@ -30,7 +30,23 @@ public class POSTransactionReportController {
         
         log.info("Generating revenue report from {} to {}", dateFrom, dateTo);
         
-        Object[] totals = reportRepository.calculateRevenueTotalsByDateRange(dateFrom, dateTo);
+        List<Object[]> results = reportRepository.calculateRevenueTotalsByDateRange(dateFrom, dateTo);
+        if (results.isEmpty()) {
+            return ResponseEntity.ok(Map.of(
+                "revenue", BigDecimal.ZERO,
+                "vatAmount", BigDecimal.ZERO,
+                "serviceFees", BigDecimal.ZERO,
+                "refunds", BigDecimal.ZERO,
+                "netRevenue", BigDecimal.ZERO,
+                "grossAmount", BigDecimal.ZERO,
+                "netAmount", BigDecimal.ZERO,
+                "serviceFeeAmount", BigDecimal.ZERO,
+                "dateFrom", dateFrom,
+                "dateTo", dateTo
+            ));
+        }
+        
+        Object[] totals = results.get(0);
         BigDecimal revenue = asBigDecimal(totals[0]);
         BigDecimal vat = asBigDecimal(totals[1]);
         BigDecimal serviceFees = asBigDecimal(totals[2]);
