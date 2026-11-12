@@ -41,3 +41,10 @@ buildNumber.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Uploads directory
+uploads/
+test-transaction-data/
+
+# Backup files
+*.backup
