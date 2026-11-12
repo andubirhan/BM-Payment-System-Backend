@@ -1,6 +1,7 @@
 package com.example.postaxvatsystem.service;
 
 import com.example.postaxvatsystem.dto.PendingTransactionDTO;
+import com.example.postaxvatsystem.model.TransactionType;
 import com.example.postaxvatsystem.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +43,11 @@ class POSTransactionServicePendingTest {
     void loadsPendingSummariesWithoutBindingNullDateParameters() {
         Pageable pageable = PageRequest.of(0, 20);
         Page<PendingTransactionDTO> expected = new PageImpl<>(List.of());
-        when(transactionRepository.findPendingTransactionSummaries(pageable)).thenReturn(expected);
+        when(transactionRepository.findPendingTransactionSummaries(null, pageable)).thenReturn(expected);
 
-        assertSame(expected, service.getPendingTransactions(null, null, pageable));
+        assertSame(expected, service.getPendingTransactions(null, null, null, pageable));
 
-        verify(transactionRepository).findPendingTransactionSummaries(pageable);
+        verify(transactionRepository).findPendingTransactionSummaries(null, pageable);
         verifyNoMoreInteractions(transactionRepository);
     }
 
@@ -55,11 +56,11 @@ class POSTransactionServicePendingTest {
         Pageable pageable = PageRequest.of(0, 20);
         LocalDateTime dateFrom = LocalDateTime.parse("2026-11-01T00:00:00");
         Page<PendingTransactionDTO> expected = new PageImpl<>(List.of());
-        when(transactionRepository.findPendingTransactionSummariesFrom(dateFrom, pageable)).thenReturn(expected);
+        when(transactionRepository.findPendingTransactionSummariesFrom(dateFrom, null, pageable)).thenReturn(expected);
 
-        assertSame(expected, service.getPendingTransactions(dateFrom, null, pageable));
+        assertSame(expected, service.getPendingTransactions(dateFrom, null, null, pageable));
 
-        verify(transactionRepository).findPendingTransactionSummariesFrom(dateFrom, pageable);
+        verify(transactionRepository).findPendingTransactionSummariesFrom(dateFrom, null, pageable);
         verifyNoMoreInteractions(transactionRepository);
     }
 
@@ -68,11 +69,11 @@ class POSTransactionServicePendingTest {
         Pageable pageable = PageRequest.of(0, 20);
         LocalDateTime dateTo = LocalDateTime.parse("2026-11-03T23:59:59");
         Page<PendingTransactionDTO> expected = new PageImpl<>(List.of());
-        when(transactionRepository.findPendingTransactionSummariesTo(dateTo, pageable)).thenReturn(expected);
+        when(transactionRepository.findPendingTransactionSummariesTo(dateTo, null, pageable)).thenReturn(expected);
 
-        assertSame(expected, service.getPendingTransactions(null, dateTo, pageable));
+        assertSame(expected, service.getPendingTransactions(null, dateTo, null, pageable));
 
-        verify(transactionRepository).findPendingTransactionSummariesTo(dateTo, pageable);
+        verify(transactionRepository).findPendingTransactionSummariesTo(dateTo, null, pageable);
         verifyNoMoreInteractions(transactionRepository);
     }
 
@@ -82,12 +83,25 @@ class POSTransactionServicePendingTest {
         LocalDateTime dateFrom = LocalDateTime.parse("2026-11-01T00:00:00");
         LocalDateTime dateTo = LocalDateTime.parse("2026-11-03T23:59:59");
         Page<PendingTransactionDTO> expected = new PageImpl<>(List.of());
-        when(transactionRepository.findPendingTransactionSummariesBetween(dateFrom, dateTo, pageable))
+        when(transactionRepository.findPendingTransactionSummariesBetween(dateFrom, dateTo, null, pageable))
                 .thenReturn(expected);
 
-        assertSame(expected, service.getPendingTransactions(dateFrom, dateTo, pageable));
+        assertSame(expected, service.getPendingTransactions(dateFrom, dateTo, null, pageable));
 
-        verify(transactionRepository).findPendingTransactionSummariesBetween(dateFrom, dateTo, pageable);
+        verify(transactionRepository).findPendingTransactionSummariesBetween(dateFrom, dateTo, null, pageable);
+        verifyNoMoreInteractions(transactionRepository);
+    }
+
+    @Test
+    void filtersPendingSummariesByBusinessTransactionType() {
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<PendingTransactionDTO> expected = new PageImpl<>(List.of());
+        when(transactionRepository.findPendingTransactionSummaries(TransactionType.SALE, pageable))
+                .thenReturn(expected);
+
+        assertSame(expected, service.getPendingTransactions(null, null, TransactionType.SALE, pageable));
+
+        verify(transactionRepository).findPendingTransactionSummaries(TransactionType.SALE, pageable);
         verifyNoMoreInteractions(transactionRepository);
     }
 }

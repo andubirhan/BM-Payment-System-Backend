@@ -3,7 +3,7 @@
     "Accept" : "application/json",
     "Content-Type" : "application/json"
   },
-  "befaPaymentId" : "BEFA-PAY-046",
+  "befaPaymentId" : "BEFA-PAY-048",
   "idempotencyKey" : "{{$randomUUID}}",
   "cashRegisterId" : "reg-001",
   "cashierId" : "cashier-001",

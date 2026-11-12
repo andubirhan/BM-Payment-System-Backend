@@ -2,6 +2,7 @@ package com.example.postaxvatsystem.controller;
 
 import com.example.postaxvatsystem.dto.*;
 import com.example.postaxvatsystem.exception.*;
+import com.example.postaxvatsystem.model.TransactionType;
 import com.example.postaxvatsystem.service.POSTransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -90,9 +91,12 @@ public class POSTransactionController {
     public ResponseEntity<?> getPendingTransactions(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTo,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        if (page < 0 || size < 1 || size > 100) {
+            @RequestParam(required = false) TransactionType businessTransactionType,
+            @RequestParam(required = false) String page,
+            @RequestParam(required = false) String size) {
+        int pageNum = parsePageParam(page);
+        int sizeNum = parseSizeParam(size);
+        if (pageNum < 0 || sizeNum < 1 || sizeNum > 100) {
             return ResponseEntity.badRequest()
                     .body(createErrorResponse("POS_INVALID_PAGINATION",
                             "Page must be non-negative and size must be between 1 and 100", false));
@@ -103,9 +107,9 @@ public class POSTransactionController {
                             "dateFrom must be on or before dateTo", false));
         }
         try {
-            org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+            org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(pageNum, sizeNum);
             org.springframework.data.domain.Page<PendingTransactionDTO> pendingTransactions =
-                    transactionService.getPendingTransactions(dateFrom, dateTo, pageable);
+                    transactionService.getPendingTransactions(dateFrom, dateTo, businessTransactionType, pageable);
             return ResponseEntity.ok(pendingTransactions);
         } catch (Exception e) {
             log.error("Error getting pending transactions", e);
@@ -126,5 +130,29 @@ public class POSTransactionController {
         error.setRetryable(retryable);
         error.setTimestamp(LocalDateTime.now());
         return error;
+    }
+
+    private int parsePageParam(String page) {
+        if (page == null || page.isEmpty() || page.equals("[objectObject]")) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(page);
+        } catch (NumberFormatException e) {
+            log.warn("Invalid page parameter '{}', using default 0", page);
+            return 0;
+        }
+    }
+
+    private int parseSizeParam(String size) {
+        if (size == null || size.isEmpty() || size.equals("[objectObject]")) {
+            return 20;
+        }
+        try {
+            return Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            log.warn("Invalid size parameter '{}', using default 20", size);
+            return 20;
+        }
     }
 }

@@ -54,12 +54,15 @@ public interface POSTransactionSearchRepository extends JpaRepository<POSTransac
     @Query(value = """
     SELECT * FROM pos_transactions t WHERE 
     (CAST(:status AS text) IS NULL OR t.status = CAST(:status AS text)) AND 
+    (:excludePending = false OR t.status <> 'PENDING') AND
     (CAST(:transactionType AS text) IS NULL OR t.transaction_type = CAST(:transactionType AS text)) AND 
+    (CAST(:businessTransactionType AS text) IS NULL OR t.business_transaction_type = CAST(:businessTransactionType AS text) OR (t.business_transaction_type IS NULL AND t.transaction_type = CAST(:businessTransactionType AS text))) AND
     (CAST(:cashRegisterId AS text) IS NULL OR t.cash_register_id = CAST(:cashRegisterId AS text)) AND 
     (CAST(:cashierId AS text) IS NULL OR t.cashier_id = CAST(:cashierId AS text)) AND 
     (CAST(:customerName AS text) IS NULL OR LOWER(t.customer_name) LIKE LOWER(CONCAT('%', CAST(:customerName AS text), '%'))) AND 
     (CAST(:befaPaymentId AS text) IS NULL OR LOWER(t.befa_payment_id) LIKE LOWER(CONCAT('%', CAST(:befaPaymentId AS text), '%'))) AND
     (CAST(:bankTransactionId AS text) IS NULL OR LOWER(t.bank_transaction_id) LIKE LOWER(CONCAT('%', CAST(:bankTransactionId AS text), '%'))) AND
+    (CAST(:transactionId AS text) IS NULL OR LOWER(t.transaction_id) LIKE LOWER(CONCAT('%', CAST(:transactionId AS text), '%'))) AND
     (CAST(:customerTinHash AS text) IS NULL OR t.customer_tin_hash = CAST(:customerTinHash AS text) OR LOWER(t.customer_tin) = LOWER(CAST(:plainCustomerTin AS text))) AND 
     (CAST(:dateFrom AS timestamp) IS NULL OR t.created_at >= CAST(:dateFrom AS timestamp)) AND 
     (CAST(:dateTo AS timestamp) IS NULL OR t.created_at <= CAST(:dateTo AS timestamp)) 
@@ -69,12 +72,15 @@ public interface POSTransactionSearchRepository extends JpaRepository<POSTransac
             countQuery = """
     SELECT COUNT(*) FROM pos_transactions t WHERE 
     (CAST(:status AS text) IS NULL OR t.status = CAST(:status AS text)) AND 
+    (:excludePending = false OR t.status <> 'PENDING') AND
     (CAST(:transactionType AS text) IS NULL OR t.transaction_type = CAST(:transactionType AS text)) AND 
+    (CAST(:businessTransactionType AS text) IS NULL OR t.business_transaction_type = CAST(:businessTransactionType AS text) OR (t.business_transaction_type IS NULL AND t.transaction_type = CAST(:businessTransactionType AS text))) AND
     (CAST(:cashRegisterId AS text) IS NULL OR t.cash_register_id = CAST(:cashRegisterId AS text)) AND 
     (CAST(:cashierId AS text) IS NULL OR t.cashier_id = CAST(:cashierId AS text)) AND 
     (CAST(:customerName AS text) IS NULL OR LOWER(t.customer_name) LIKE LOWER(CONCAT('%', CAST(:customerName AS text), '%'))) AND 
     (CAST(:befaPaymentId AS text) IS NULL OR LOWER(t.befa_payment_id) LIKE LOWER(CONCAT('%', CAST(:befaPaymentId AS text), '%'))) AND
     (CAST(:bankTransactionId AS text) IS NULL OR LOWER(t.bank_transaction_id) LIKE LOWER(CONCAT('%', CAST(:bankTransactionId AS text), '%'))) AND
+    (CAST(:transactionId AS text) IS NULL OR LOWER(t.transaction_id) LIKE LOWER(CONCAT('%', CAST(:transactionId AS text), '%'))) AND
     (CAST(:customerTinHash AS text) IS NULL OR t.customer_tin_hash = CAST(:customerTinHash AS text) OR LOWER(t.customer_tin) = LOWER(CAST(:plainCustomerTin AS text))) AND 
     (CAST(:dateFrom AS timestamp) IS NULL OR t.created_at >= CAST(:dateFrom AS timestamp)) AND 
     (CAST(:dateTo AS timestamp) IS NULL OR t.created_at <= CAST(:dateTo AS timestamp))
@@ -82,12 +88,15 @@ public interface POSTransactionSearchRepository extends JpaRepository<POSTransac
             nativeQuery = true)
     List<POSTransaction> searchTransactionsNative(
             @Param("status") String status,
+            @Param("excludePending") boolean excludePending,
             @Param("transactionType") String transactionType,
+            @Param("businessTransactionType") String businessTransactionType,
             @Param("cashRegisterId") String cashRegisterId,
             @Param("cashierId") String cashierId,
             @Param("customerName") String customerName,
             @Param("befaPaymentId") String befaPaymentId,
             @Param("bankTransactionId") String bankTransactionId,
+            @Param("transactionId") String transactionId,
             @Param("customerTinHash") String customerTinHash,
             @Param("plainCustomerTin") String plainCustomerTin,
             @Param("dateFrom") LocalDateTime dateFrom,
@@ -98,27 +107,33 @@ public interface POSTransactionSearchRepository extends JpaRepository<POSTransac
 
     // Count query for pagination (partial string search for customerName, hash search for TIN)
     @Query(value = """
-    SELECT COUNT(*) FROM pos_transactions t WHERE 
-    (CAST(:status AS text) IS NULL OR t.status = CAST(:status AS text)) AND 
-    (CAST(:transactionType AS text) IS NULL OR t.transaction_type = CAST(:transactionType AS text)) AND 
-    (CAST(:cashRegisterId AS text) IS NULL OR t.cash_register_id = CAST(:cashRegisterId AS text)) AND 
-    (CAST(:cashierId AS text) IS NULL OR t.cashier_id = CAST(:cashierId AS text)) AND 
-    (CAST(:customerName AS text) IS NULL OR LOWER(t.customer_name) LIKE LOWER(CONCAT('%', CAST(:customerName AS text), '%'))) AND 
+    SELECT COUNT(*) FROM pos_transactions t WHERE
+    (CAST(:status AS text) IS NULL OR t.status = CAST(:status AS text)) AND
+    (:excludePending = false OR t.status <> 'PENDING') AND
+    (CAST(:transactionType AS text) IS NULL OR t.transaction_type = CAST(:transactionType AS text)) AND
+    (CAST(:businessTransactionType AS text) IS NULL OR t.business_transaction_type = CAST(:businessTransactionType AS text) OR (t.business_transaction_type IS NULL AND t.transaction_type = CAST(:businessTransactionType AS text))) AND
+    (CAST(:cashRegisterId AS text) IS NULL OR t.cash_register_id = CAST(:cashRegisterId AS text)) AND
+    (CAST(:cashierId AS text) IS NULL OR t.cashier_id = CAST(:cashierId AS text)) AND
+    (CAST(:customerName AS text) IS NULL OR LOWER(t.customer_name) LIKE LOWER(CONCAT('%', CAST(:customerName AS text), '%'))) AND
     (CAST(:befaPaymentId AS text) IS NULL OR LOWER(t.befa_payment_id) LIKE LOWER(CONCAT('%', CAST(:befaPaymentId AS text), '%'))) AND
     (CAST(:bankTransactionId AS text) IS NULL OR LOWER(t.bank_transaction_id) LIKE LOWER(CONCAT('%', CAST(:bankTransactionId AS text), '%'))) AND
-    (CAST(:customerTinHash AS text) IS NULL OR t.customer_tin_hash = CAST(:customerTinHash AS text) OR LOWER(t.customer_tin) = LOWER(CAST(:plainCustomerTin AS text))) AND 
-    (CAST(:dateFrom AS timestamp) IS NULL OR t.created_at >= CAST(:dateFrom AS timestamp)) AND 
+    (CAST(:transactionId AS text) IS NULL OR LOWER(t.transaction_id) LIKE LOWER(CONCAT('%', CAST(:transactionId AS text), '%'))) AND
+    (CAST(:customerTinHash AS text) IS NULL OR t.customer_tin_hash = CAST(:customerTinHash AS text) OR LOWER(t.customer_tin) = LOWER(CAST(:plainCustomerTin AS text))) AND
+    (CAST(:dateFrom AS timestamp) IS NULL OR t.created_at >= CAST(:dateFrom AS timestamp)) AND
     (CAST(:dateTo AS timestamp) IS NULL OR t.created_at <= CAST(:dateTo AS timestamp))
     """,
             nativeQuery = true)
     Long countSearchTransactionsNative(
             @Param("status") String status,
+            @Param("excludePending") boolean excludePending,
             @Param("transactionType") String transactionType,
+            @Param("businessTransactionType") String businessTransactionType,
             @Param("cashRegisterId") String cashRegisterId,
             @Param("cashierId") String cashierId,
             @Param("customerName") String customerName,
             @Param("befaPaymentId") String befaPaymentId,
             @Param("bankTransactionId") String bankTransactionId,
+            @Param("transactionId") String transactionId,
             @Param("customerTinHash") String customerTinHash,
             @Param("plainCustomerTin") String plainCustomerTin,
             @Param("dateFrom") LocalDateTime dateFrom,
@@ -150,8 +165,17 @@ public interface POSTransactionSearchRepository extends JpaRepository<POSTransac
     @Query("SELECT t FROM POSTransaction t WHERE " +
            "(t.transactionId ILIKE CONCAT('%', :query, '%') OR " +
            "t.fiscalReference ILIKE CONCAT('%', :query, '%') OR " +
-           "t.customerName ILIKE CONCAT('%', :query, '%'))")
-    Page<POSTransaction> fullTextSearch(@Param("query") String query, Pageable pageable);
+           "t.customerName ILIKE CONCAT('%', :query, '%')) AND " +
+           "(:status IS NULL OR t.status = :status) AND " +
+           "(:excludePending = false OR t.status <> com.example.postaxvatsystem.model.TransactionStatus.PENDING) AND " +
+           "(:businessTransactionType IS NULL OR t.businessTransactionType = :businessTransactionType OR " +
+           "(t.businessTransactionType IS NULL AND t.transactionType = :businessTransactionType))")
+    Page<POSTransaction> fullTextSearch(
+            @Param("query") String query,
+            @Param("status") TransactionStatus status,
+            @Param("excludePending") boolean excludePending,
+            @Param("businessTransactionType") TransactionType businessTransactionType,
+            Pageable pageable);
 
     // Full-Text Search without Pagination (excludes encrypted fields)
     @Query("SELECT t FROM POSTransaction t WHERE " +

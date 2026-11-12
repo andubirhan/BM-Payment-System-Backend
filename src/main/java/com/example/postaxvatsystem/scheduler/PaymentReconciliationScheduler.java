@@ -68,18 +68,23 @@ public class PaymentReconciliationScheduler {
 
         for (POSTransaction txn : strandedTxns) {
             try {
-                log.info("Reconciling transaction: {} (Idempotency Key: {})", 
-                        txn.getTransactionId(), txn.getIdempotencyKey());
+                log.info("Reconciling transaction: {} (Idempotency Key: {}, Status: {}, Created At: {}, Amount: {})",
+                        txn.getTransactionId(), txn.getIdempotencyKey(), txn.getStatus(),
+                        txn.getCreatedAt(), txn.getNetAmount());
 
                 // Poll the bank to see if they processed this specific idempotency key
                 BankStatusResponse bankStatus = bankApiClient.checkStatus(txn.getIdempotencyKey());
 
                 String bankState = bankStatus == null || bankStatus.getStatus() == null
                         ? "UNKNOWN" : bankStatus.getStatus().toUpperCase();
+                log.info("Bank status for {}: {}", txn.getTransactionId(), bankState);
+
                 if ("SUCCESS".equals(bankState)) {
                     stateManager.finalizeToSuccess(txn.getId(), bankStatus.getRawResponseJson());
+                    log.info("Transaction {} finalized to COMPLETED", txn.getTransactionId());
                 } else if ("FAILED".equals(bankState) || "NOT_FOUND".equals(bankState)) {
                     stateManager.finalizeToFailure(txn.getId(), bankStatus.getRawResponseJson());
+                    log.info("Transaction {} finalized to FAILED", txn.getTransactionId());
                 } else {
                     log.warn("Bank returned an indeterminate status for {}; leaving it PENDING.", txn.getTransactionId());
                 }            } catch (Exception e) {

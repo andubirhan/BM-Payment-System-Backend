@@ -36,27 +36,51 @@ public class POSTransactionSearchController {
     @GetMapping("/transactions")
     public ResponseEntity<?> searchTransactions(
             @RequestParam(required = false) TransactionStatus status,
+            @RequestParam(defaultValue = "false") boolean excludePending,
             @RequestParam(required = false) TransactionType transactionType,
+            @RequestParam(required = false) TransactionType businessTransactionType,
             @RequestParam(required = false) String cashRegisterId,
             @RequestParam(required = false) String cashierId,
             @RequestParam(required = false) String customerName,
             @RequestParam(required = false) String befaPaymentId,
             @RequestParam(required = false) String bankTransactionId,
+            @RequestParam(required = false) String transactionId,
             @RequestParam(required = false) String customerTin,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTo,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(required = false) String page,
+            @RequestParam(required = false) String size) {
         try {
-            int offset = page * size;
+            // Parse page and size with validation
+            int pageNum = 0;
+            int sizeNum = 20;
+            try {
+                if (page != null && !page.isEmpty() && !page.equals("[objectObject]")) {
+                    pageNum = Integer.parseInt(page);
+                }
+            } catch (NumberFormatException e) {
+                log.warn("Invalid page parameter '{}', using default 0", page);
+            }
+            try {
+                if (size != null && !size.isEmpty() && !size.equals("[objectObject]")) {
+                    sizeNum = Integer.parseInt(size);
+                }
+            } catch (NumberFormatException e) {
+                log.warn("Invalid size parameter '{}', using default 20", size);
+            }
+
+            int offset = pageNum * sizeNum;
             String statusStr = status != null ? status.name() : null;
             String transactionTypeStr = transactionType != null ? transactionType.name() : null;
+            String businessTransactionTypeStr = businessTransactionType != null
+                    ? businessTransactionType.name() : null;
             
             // Treat empty strings as null for optional parameters
             String cashRegisterIdStr = (cashRegisterId != null && !cashRegisterId.isEmpty()) ? cashRegisterId : null;
             String cashierIdStr = (cashierId != null && !cashierId.isEmpty()) ? cashierId : null;
             String befaPaymentIdStr = (befaPaymentId != null && !befaPaymentId.isBlank()) ? befaPaymentId.trim() : null;
             String bankTransactionIdStr = (bankTransactionId != null && !bankTransactionId.isBlank()) ? bankTransactionId.trim() : null;
+            String transactionIdStr = (transactionId != null && !transactionId.isBlank()) ? transactionId.trim() : null;
             
             // customerName is now plain text for partial search, TIN uses hash
             String customerTinHash = null;
@@ -66,24 +90,26 @@ public class POSTransactionSearchController {
             }
 
             List<POSTransaction> results = searchRepository.searchTransactionsNative(
-                statusStr, transactionTypeStr, cashRegisterIdStr, cashierIdStr, customerName, befaPaymentIdStr,
-                bankTransactionIdStr, customerTinHash, customerTin, dateFrom, dateTo, offset, size);
+                statusStr, excludePending, transactionTypeStr, businessTransactionTypeStr, cashRegisterIdStr, cashierIdStr, customerName, befaPaymentIdStr,
+                bankTransactionIdStr, transactionIdStr, customerTinHash, customerTin, dateFrom, dateTo, offset, sizeNum);
 
             log.info("Search returned {} results", results.size());
 
             Long total = searchRepository.countSearchTransactionsNative(
-                statusStr, transactionTypeStr, cashRegisterIdStr, cashierIdStr, customerName, befaPaymentIdStr,
-                bankTransactionIdStr, customerTinHash, customerTin, dateFrom, dateTo);
+                statusStr, excludePending, transactionTypeStr, businessTransactionTypeStr, cashRegisterIdStr, cashierIdStr, customerName, befaPaymentIdStr,
+                bankTransactionIdStr, transactionIdStr, customerTinHash, customerTin, dateFrom, dateTo);
             
             if (results.isEmpty()) {
                 Map<String, Object> criteria = new HashMap<>();
                 if (statusStr != null) criteria.put("status", statusStr);
                 if (transactionTypeStr != null) criteria.put("transactionType", transactionTypeStr);
+                if (businessTransactionTypeStr != null) criteria.put("businessTransactionType", businessTransactionTypeStr);
                 if (cashRegisterIdStr != null) criteria.put("cashRegisterId", cashRegisterIdStr);
                 if (cashierIdStr != null) criteria.put("cashierId", cashierIdStr);
                 if (customerName != null) criteria.put("customerName", customerName);
                 if (befaPaymentIdStr != null) criteria.put("befaPaymentId", befaPaymentIdStr);
                 if (bankTransactionIdStr != null) criteria.put("bankTransactionId", bankTransactionIdStr);
+                if (transactionIdStr != null) criteria.put("transactionId", transactionIdStr);
                 if (customerTinHash != null) criteria.put("customerTinHash", customerTinHash);
                 if (dateFrom != null) criteria.put("dateFrom", dateFrom);
                 if (dateTo != null) criteria.put("dateTo", dateTo);
@@ -92,8 +118,8 @@ public class POSTransactionSearchController {
                         .body(Map.of("message", "No transactions found matching the specified criteria",
                                     "criteria", criteria));
             }
-            
-            Page<POSTransaction> pageResult = new org.springframework.data.domain.PageImpl<>(results, PageRequest.of(page, size), total);
+
+            Page<POSTransaction> pageResult = new org.springframework.data.domain.PageImpl<>(results, PageRequest.of(pageNum, sizeNum), total);
             return ResponseEntity.ok(pageResult);
         } catch (Exception e) {
             log.error("Error searching transactions", e);
@@ -106,10 +132,14 @@ public class POSTransactionSearchController {
     public ResponseEntity<?> fullTextSearch(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) TransactionStatus status,
+            @RequestParam(defaultValue = "false") boolean excludePending,
+            @RequestParam(required = false) TransactionType businessTransactionType) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            Page<POSTransaction> results = searchRepository.fullTextSearch(query, pageable);
+            Page<POSTransaction> results = searchRepository.fullTextSearch(
+                    query, status, excludePending, businessTransactionType, pageable);
             if (results.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("message", "No transactions found matching the search query",

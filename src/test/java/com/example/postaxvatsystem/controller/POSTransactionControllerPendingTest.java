@@ -1,6 +1,7 @@
 package com.example.postaxvatsystem.controller;
 
 import com.example.postaxvatsystem.dto.PendingTransactionDTO;
+import com.example.postaxvatsystem.model.TransactionType;
 import com.example.postaxvatsystem.service.POSTransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -27,9 +28,9 @@ class POSTransactionControllerPendingTest {
     @Test
     void returnsSuccessfulEmptyPageWhenThereAreNoPendingTransactions() {
         Page<PendingTransactionDTO> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
-        when(service.getPendingTransactions(null, null, PageRequest.of(0, 20))).thenReturn(emptyPage);
+        when(service.getPendingTransactions(null, null, null, PageRequest.of(0, 20))).thenReturn(emptyPage);
 
-        ResponseEntity<?> response = controller.getPendingTransactions(null, null, 0, 20);
+        ResponseEntity<?> response = controller.getPendingTransactions(null, null, null, 0, 20);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertSame(emptyPage, response.getBody());
@@ -40,6 +41,7 @@ class POSTransactionControllerPendingTest {
         ResponseEntity<?> response = controller.getPendingTransactions(
                 LocalDateTime.parse("2026-11-03T00:00:00"),
                 LocalDateTime.parse("2026-11-01T00:00:00"),
+                TransactionType.SALE,
                 0,
                 20);
 
@@ -47,6 +49,20 @@ class POSTransactionControllerPendingTest {
         verify(service, never()).getPendingTransactions(
                 org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void passesBusinessTransactionTypeToPendingSearch() {
+        Page<PendingTransactionDTO> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+        when(service.getPendingTransactions(null, null, TransactionType.PURCHASE, PageRequest.of(0, 20)))
+                .thenReturn(page);
+
+        ResponseEntity<?> response = controller.getPendingTransactions(
+                null, null, TransactionType.PURCHASE, 0, 20);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(service).getPendingTransactions(null, null, TransactionType.PURCHASE, PageRequest.of(0, 20));
     }
 }

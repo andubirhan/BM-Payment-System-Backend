@@ -9,6 +9,7 @@ public record PendingTransactionDTO(
         String transactionId,
         String customerName,
         TransactionType transactionType,
+        TransactionType businessTransactionType,
         BigDecimal netAmount,
         String currencyCode,
         LocalDateTime createdAt) {

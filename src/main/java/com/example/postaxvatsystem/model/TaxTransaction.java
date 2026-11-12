@@ -32,7 +32,7 @@ public class TaxTransaction {
     @Column(name = "authority_transaction_id", length = 100)
     private String authorityTransactionId;
 
-    @Column(name = "submission_mode", nullable = false, length = 20)
+    @Column(name = "submission_mode", nullable = false, length = 50)
     private String submissionMode = "LEGACY";
 
     @Column(nullable = false)
@@ -68,7 +68,7 @@ public class TaxTransaction {
     @Column
     private LocalDateTime submittedToAuthorityAt;
 
-    @Column(length = 20)
+    @Column(length = 50)
     private String authorityResponseCode;
 
     @Column(length = 255)

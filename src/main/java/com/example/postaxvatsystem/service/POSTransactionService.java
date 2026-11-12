@@ -1088,18 +1088,26 @@ public class POSTransactionService {
         return response;
     }
 
-    public org.springframework.data.domain.Page<PendingTransactionDTO> getPendingTransactions(LocalDateTime dateFrom, LocalDateTime dateTo, org.springframework.data.domain.Pageable pageable) {
-        log.info("Fetching pending transactions with date range: {} to {}, page: {}, size: {}", dateFrom, dateTo, pageable.getPageNumber(), pageable.getPageSize());
+    public org.springframework.data.domain.Page<PendingTransactionDTO> getPendingTransactions(
+            LocalDateTime dateFrom,
+            LocalDateTime dateTo,
+            TransactionType businessTransactionType,
+            org.springframework.data.domain.Pageable pageable) {
+        log.info("Fetching pending transactions with date range: {} to {}, business type: {}, page: {}, size: {}",
+                dateFrom, dateTo, businessTransactionType, pageable.getPageNumber(), pageable.getPageSize());
         if (dateFrom != null && dateTo != null) {
-            return transactionRepository.findPendingTransactionSummariesBetween(dateFrom, dateTo, pageable);
+            return transactionRepository.findPendingTransactionSummariesBetween(
+                    dateFrom, dateTo, businessTransactionType, pageable);
         }
         if (dateFrom != null) {
-            return transactionRepository.findPendingTransactionSummariesFrom(dateFrom, pageable);
+            return transactionRepository.findPendingTransactionSummariesFrom(
+                    dateFrom, businessTransactionType, pageable);
         }
         if (dateTo != null) {
-            return transactionRepository.findPendingTransactionSummariesTo(dateTo, pageable);
+            return transactionRepository.findPendingTransactionSummariesTo(
+                    dateTo, businessTransactionType, pageable);
         }
-        return transactionRepository.findPendingTransactionSummaries(pageable);
+        return transactionRepository.findPendingTransactionSummaries(businessTransactionType, pageable);
     }
 
     private record PaymentGatewayResult(String authCode, String rrn, String cardLastFour, String cardBrand) {}

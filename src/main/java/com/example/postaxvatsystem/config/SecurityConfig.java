@@ -74,6 +74,7 @@ public class SecurityConfig {
                         
                         // Migration endpoints (admin only)
                         .requestMatchers(mvc.pattern("/api/v1/admin/migration/**")).hasRole("ADMIN")
+                        .requestMatchers(mvc.pattern("/api/v1/admin/**")).hasRole("ADMIN")
                         
                         .anyRequest().authenticated()
                 )

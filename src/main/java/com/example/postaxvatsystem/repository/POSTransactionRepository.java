@@ -3,6 +3,7 @@ package com.example.postaxvatsystem.repository;
 import com.example.postaxvatsystem.dto.PendingTransactionDTO;
 import com.example.postaxvatsystem.model.POSTransaction;
 import com.example.postaxvatsystem.model.TransactionStatus;
+import com.example.postaxvatsystem.model.TransactionType;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,48 +66,69 @@ public interface POSTransactionRepository extends JpaRepository<POSTransaction, 
 
     @Query("""
             SELECT new com.example.postaxvatsystem.dto.PendingTransactionDTO(
-                t.transactionId, t.customerName, t.transactionType, t.netAmount, t.currencyCode, t.createdAt)
+                t.transactionId, t.customerName, t.transactionType,
+                COALESCE(t.businessTransactionType, t.transactionType),
+                t.netAmount, t.currencyCode, t.createdAt)
             FROM POSTransaction t
             WHERE t.status = com.example.postaxvatsystem.model.TransactionStatus.PENDING
+              AND (:businessTransactionType IS NULL OR t.businessTransactionType = :businessTransactionType
+                   OR (t.businessTransactionType IS NULL AND t.transactionType = :businessTransactionType))
             ORDER BY t.createdAt DESC
             """)
-    Page<PendingTransactionDTO> findPendingTransactionSummaries(Pageable pageable);
+    Page<PendingTransactionDTO> findPendingTransactionSummaries(
+            @Param("businessTransactionType") TransactionType businessTransactionType,
+            Pageable pageable);
 
     @Query("""
             SELECT new com.example.postaxvatsystem.dto.PendingTransactionDTO(
-                t.transactionId, t.customerName, t.transactionType, t.netAmount, t.currencyCode, t.createdAt)
+                t.transactionId, t.customerName, t.transactionType,
+                COALESCE(t.businessTransactionType, t.transactionType),
+                t.netAmount, t.currencyCode, t.createdAt)
             FROM POSTransaction t
             WHERE t.status = com.example.postaxvatsystem.model.TransactionStatus.PENDING
               AND t.createdAt >= :dateFrom
+              AND (:businessTransactionType IS NULL OR t.businessTransactionType = :businessTransactionType
+                   OR (t.businessTransactionType IS NULL AND t.transactionType = :businessTransactionType))
             ORDER BY t.createdAt DESC
             """)
     Page<PendingTransactionDTO> findPendingTransactionSummariesFrom(
             @Param("dateFrom") LocalDateTime dateFrom,
+            @Param("businessTransactionType") TransactionType businessTransactionType,
             Pageable pageable);
 
     @Query("""
             SELECT new com.example.postaxvatsystem.dto.PendingTransactionDTO(
-                t.transactionId, t.customerName, t.transactionType, t.netAmount, t.currencyCode, t.createdAt)
+                t.transactionId, t.customerName, t.transactionType,
+                COALESCE(t.businessTransactionType, t.transactionType),
+                t.netAmount, t.currencyCode, t.createdAt)
             FROM POSTransaction t
             WHERE t.status = com.example.postaxvatsystem.model.TransactionStatus.PENDING
               AND t.createdAt <= :dateTo
+              AND (:businessTransactionType IS NULL OR t.businessTransactionType = :businessTransactionType
+                   OR (t.businessTransactionType IS NULL AND t.transactionType = :businessTransactionType))
             ORDER BY t.createdAt DESC
             """)
     Page<PendingTransactionDTO> findPendingTransactionSummariesTo(
             @Param("dateTo") LocalDateTime dateTo,
+            @Param("businessTransactionType") TransactionType businessTransactionType,
             Pageable pageable);
 
     @Query("""
             SELECT new com.example.postaxvatsystem.dto.PendingTransactionDTO(
-                t.transactionId, t.customerName, t.transactionType, t.netAmount, t.currencyCode, t.createdAt)
+                t.transactionId, t.customerName, t.transactionType,
+                COALESCE(t.businessTransactionType, t.transactionType),
+                t.netAmount, t.currencyCode, t.createdAt)
             FROM POSTransaction t
             WHERE t.status = com.example.postaxvatsystem.model.TransactionStatus.PENDING
               AND t.createdAt >= :dateFrom
               AND t.createdAt <= :dateTo
+              AND (:businessTransactionType IS NULL OR t.businessTransactionType = :businessTransactionType
+                   OR (t.businessTransactionType IS NULL AND t.transactionType = :businessTransactionType))
             ORDER BY t.createdAt DESC
             """)
     Page<PendingTransactionDTO> findPendingTransactionSummariesBetween(
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo,
+            @Param("businessTransactionType") TransactionType businessTransactionType,
             Pageable pageable);
 }
