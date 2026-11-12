@@ -9,14 +9,27 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: DATABASE_URL
-        value: postgresql://postaxvatsystem:sl6KdhibP2XWzx3pKnXSlQpwVQ2ZyzNW@dpg-dbm28khsrm7s73erqlvg-a/postaxvatsystem
+        fromDatabase:
+          name: BM-tax-vat-payment-db
+          property: connectionString
       - key: DATABASE_USER
-        value: postaxvatsystem
+        fromDatabase:
+          name: BM-tax-vat-payment-db
+          property: user
       - key: DB_PASSWORD
-        value: sl6KdhibP2XWzx3pKnXSlQpwVQ2ZyzNW
+        fromDatabase:
+          name: BM-tax-vat-payment-db
+          property: password
       - key: JWT_SECRET
         generateValue: true
       - key: ENCRYPTION_KEY
         generateValue: true
       - key: HASH_KEY
         generateValue: true
+
+databases:
+  - name: BM-tax-vat-payment-db
+    databaseName: postaxvatsystem_gt6u
+    user: postaxvatsystem
+    plan: free
+    region: oregon
