@@ -9,11 +9,11 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: DATABASE_URL
-        value: postgresql://pos_tax_vat_user:jFIV89Umdx2MYmzTi4nlTIM7yWraF1ul@dpg-dbqr6ddbedkc73ega6t0-a/pos_tax_vat_db
+        value: postgresql://postaxvatsystem:sl6KdhibP2XWzx3pKnXSlQpwVQ2ZyzNW@dpg-dbm28khsrm7s73erqlvg-a/postaxvatsystem
       - key: DATABASE_USER
-        value: pos_tax_vat_user
+        value: postaxvatsystem
       - key: DB_PASSWORD
-        value: jFIV89Umdx2MYmzTi4nlTIM7yWraF1ul
+        value: sl6KdhibP2XWzx3pKnXSlQpwVQ2ZyzNW
       - key: JWT_SECRET
         generateValue: true
       - key: ENCRYPTION_KEY
